@@ -15,6 +15,7 @@ void AnimationTimeline::update(float delta) {
 	i = 0;
 	while (i < keys.size()) {
 		if (keys[i]->isDestroyed()) {
+			//printf("destroyed keyframe %X\n", keys[i]);
 			delete keys[i];
 			keys.erase(keys.begin() + i);
 		}

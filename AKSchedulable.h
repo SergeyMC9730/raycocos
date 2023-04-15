@@ -18,6 +18,8 @@ public:
 	AKSchedulable();
 	~AKSchedulable();
 
+	std::vector<void*> object_container;
+
 	virtual void update(float delta);
 		
 	virtual void pause();

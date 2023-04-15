@@ -20,13 +20,6 @@ void CCLabel::draw() {
 	DrawTextPro(GetFontDefault(), label, getPosition(), {0.f, 0.f}, getRotation(), 30 * getScale(), spacing, c);
 }
 
-void CCLabel::setColor(Color c) {
-	col = c;
-}
-Color CCLabel::getColor() {
-	return col;
-}
-
 const char* CCLabel::getText() {
 	return label;
 }

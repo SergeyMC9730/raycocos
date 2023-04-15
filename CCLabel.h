@@ -2,15 +2,13 @@
 
 #include "CCNode.h"
 
-class CCLabel : public CCNode {
+#include "CCColorParameter.h"
+
+class CCLabel : public CCNode, public CCColorParameter {
 protected:
 	const char* label;
-	Color col;
 public:
 	CCLabel(const char* label);
-
-	void setColor(Color c);
-	Color getColor();
 
 	const char* getText();
 	void setText(const char *t);

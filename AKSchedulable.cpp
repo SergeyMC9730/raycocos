@@ -30,6 +30,7 @@ AKType AKSchedulable::getType() {
 AKSchedulable::AKSchedulable() {
 	paused = false;
 	destroyed = false;
+	parent = nullptr;
 	type = ATSCHEDULABLE;
 	this->onSuccessCallback = [&]() {};
 }

@@ -7,6 +7,7 @@
 class AKTimer : public AKSchedulable {
 protected:
 	std::function<void(AKTimer*)> callback;
+
 	int length;
 	int ticks;
 public:
