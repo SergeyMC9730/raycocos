@@ -160,7 +160,7 @@ void create_hieffect() {
 int main()
 {
 
-    InitWindow(1920, 1080, "raylib [core] example - basic window");
+    InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "raylib [core] example - basic window");
     SetTargetFPS(GetMonitorRefreshRate(0));
 
     bool infullscreen = false;
