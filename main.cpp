@@ -186,7 +186,15 @@ int main()
     std::vector<CCNode*> hide_list;
 
     auto iv = new AKInterval([&](AKInterval*) {
-        if(!stop_hieffect) create_hieffect();
+        if (!stop_hieffect) {
+            int i = 0;
+            int m = 144 / GetFPS();
+            if (m == 0) m == 1;
+            while (i < m) {
+                create_hieffect();
+                i++;
+            }
+        }
     }, 1);
     auto iv2 = new AKInterval([&](AKInterval*) {
         auto timeline = CCController::timeline;
