@@ -9,13 +9,15 @@
 #include "CCSprite.h"
 #include "CCLabel.h"
 
+#include "CCColors.h"
+
 #include "CCBox.h"
 
 using namespace std;
 
 int messages_sent = 0;
 
-void create_message(const char* msg) {
+void create_message(const char* msg, bool stay = false) {
     if (messages_sent < 0) messages_sent = 0;
 
     auto timeline = CCController::timeline;
@@ -30,7 +32,7 @@ void create_message(const char* msg) {
     sz1.y += 10.f;
 
     auto box = new CCBox(sz1);
-    box->setColor(DARKBROWN);
+    box->setColor(DARKGRAY);
     box->setPosition({ 0.f + (messages_sent * 10.f), -sz1.y });
     box->setOpacity(1.f);
     auto label = new CCLabel(msg);
@@ -69,67 +71,70 @@ void create_message(const char* msg) {
         nd->setPosition({ vec2->x + 10.f, -vec->y + 8.f });
     });
 
-    auto timer = new AKTimer([&](AKTimer* self) {
-        self->destroy();
-
-        CCNode* nd1 = static_cast<CCNode*>(self->object_container[0]);
-        CCNode* nd2 = static_cast<CCNode*>(self->object_container[1]);
-        auto vec = reinterpret_cast<Vector2*>(self->object_container[2]);
-        auto ofs = reinterpret_cast<Vector2*>(self->object_container[3]);
-        auto pmov3 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[4]);
-        auto pmov4 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[5]);
-
-        nd1->setOpacity(0.f);
-        nd2->setOpacity(0.f);
-
-        auto op1 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
+    if (!stay) {
+        auto timer = new AKTimer([&](AKTimer* self) {
             self->destroy();
-            self->getParent()->destroy();
-        });
-        auto op2 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
-            self->destroy();
-            self->getParent()->destroy();
-            messages_sent--;
-            auto pvec = reinterpret_cast<Vector2*>(self->object_container[0]);
-            auto pofs = reinterpret_cast<Vector2*>(self->object_container[1]);
-            auto ppmov3 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[2]);
-            auto ppmov4 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[3]);;
-            delete pvec;
-            delete pofs;
-            ppmov3->destroy();
-            ppmov4->destroy();
-        });
 
-        op2->object_container.push_back(vec);
-        op2->object_container.push_back(ofs);
-        op2->object_container.push_back(pmov3);
-        op2->object_container.push_back(pmov4);
+            CCNode* nd1 = static_cast<CCNode*>(self->object_container[0]);
+            CCNode* nd2 = static_cast<CCNode*>(self->object_container[1]);
+            auto vec = reinterpret_cast<Vector2*>(self->object_container[2]);
+            auto ofs = reinterpret_cast<Vector2*>(self->object_container[3]);
+            auto pmov3 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[4]);
+            auto pmov4 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[5]);
 
-        auto mov1 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
-        mov1->setFinalPosition({ 0.f, -vec->y });
+            nd1->setOpacity(0.f);
+            nd2->setOpacity(0.f);
 
-        auto mov2 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
-        mov2->setFinalPosition({ 0.f, -vec->y });
+            auto op1 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
+                self->destroy();
+                self->getParent()->destroy();
+                });
+            auto op2 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
+                self->destroy();
+                self->getParent()->destroy();
+                messages_sent--;
+                auto pvec = reinterpret_cast<Vector2*>(self->object_container[0]);
+                auto pofs = reinterpret_cast<Vector2*>(self->object_container[1]);
+                auto ppmov3 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[2]);
+                auto ppmov4 = reinterpret_cast<AKSpriteAnimation*>(self->object_container[3]);;
+                delete pvec;
+                delete pofs;
+                ppmov3->destroy();
+                ppmov4->destroy();
+                });
 
-        nd1->runAction(op1);
-        nd2->runAction(op2);
-        nd1->runAction(mov1);
-        nd2->runAction(mov2);
-    }, GetMonitorRefreshRate(0));
+            op2->object_container.push_back(vec);
+            op2->object_container.push_back(ofs);
+            op2->object_container.push_back(pmov3);
+            op2->object_container.push_back(pmov4);
 
-    timer->object_container.push_back(label);
-    timer->object_container.push_back(box);
-    timer->object_container.push_back(vec_p);
-    timer->object_container.push_back(offset);
-    timer->object_container.push_back(mov3);
-    timer->object_container.push_back(mov4);
+            auto mov1 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
+            mov1->setFinalPosition({ 0.f, -vec->y });
+
+            auto mov2 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
+            mov2->setFinalPosition({ 0.f, -vec->y });
+
+            nd1->runAction(op1);
+            nd2->runAction(op2);
+            nd1->runAction(mov1);
+            nd2->runAction(mov2);
+            }, GetMonitorRefreshRate(0));
+
+        timer->object_container.push_back(label);
+        timer->object_container.push_back(box);
+        timer->object_container.push_back(vec_p);
+        timer->object_container.push_back(offset);
+        timer->object_container.push_back(mov3);
+        timer->object_container.push_back(mov4);
+
+        timeline->addToTimeline(timer);
+    }
 
     box->runAction(mov3);
     label->runAction(mov4);
 
     timeline->addToTimeline(box);
-    timeline->addToTimeline(label);
-    timeline->addToTimeline(timer);
+    timeline->addToTimeline(label);;
 
     messages_sent++;
 }
@@ -183,18 +188,21 @@ int main()
     lbfps->setScale(0.66666f);
     lbfps->setOpacity(1.f);
 
+    create_message("uwu", true);
+
     std::vector<CCNode*> hide_list;
 
     auto iv = new AKInterval([&](AKInterval*) {
         if (!stop_hieffect) {
             int i = 0;
-            int m = 144 / GetFPS();
+            int m = 144.f / (float)GetFPS();
             if (m == 0) m == 1;
             while (i < m) {
                 create_hieffect();
                 i++;
             }
         }
+        CCColors::rainbow_color_tick();
     }, 1);
     auto iv2 = new AKInterval([&](AKInterval*) {
         auto timeline = CCController::timeline;
@@ -216,6 +224,7 @@ int main()
             infullscreen = !infullscreen;
 
             if (infullscreen) {
+                create_message("Fullscreen enabled.");
                 int i = 0;
                 while (i < hide_list.size()) {
                     hide_list[i]->setOpacity(0.f);
@@ -225,6 +234,7 @@ int main()
                 }
             }
             else {
+                create_message("Fullscreen disabled.");
                 int i = 0;
                 while (i < hide_list.size()) {
                     hide_list[i]->setOpacity(0.f);

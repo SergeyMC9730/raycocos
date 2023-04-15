@@ -1,4 +1,5 @@
 #include "CCBox.h"
+#include "CCColors.h"
 
 CCBox::CCBox(Vector2 sz) {
 	size = sz;
@@ -22,7 +23,7 @@ void CCBox::draw() {
 
 	DrawRectanglePro(rec, getAnchorPoint(), getRotation(), c);
 
-	c = WHITE;
+	c = CCColors::rainbow;
 	c.a *= getOpacity();
 	DrawRectangleLinesEx(rec, 2.f, c);
 }
