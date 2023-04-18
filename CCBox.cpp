@@ -3,6 +3,7 @@
 
 CCBox::CCBox(Vector2 sz) {
 	size = sz;
+	type = ATBOX;
 }
 
 void CCBox::draw() {
@@ -18,12 +19,21 @@ void CCBox::draw() {
 	rec.width = size2.x;
 	rec.height = size2.y;
 
-	Color c = col;
-	c.a *= getOpacity();
+	auto op = getOpacity();
 
-	DrawRectanglePro(rec, getAnchorPoint(), getRotation(), c);
+	Color c = col;
+	c.a *= op;
+	Color c2 = col;
+	c2.r += 32;
+	c2.g += 32;
+	c2.b += 32;
+	c2.a *= op;
+
+	DrawRectangleGradientV(rec.x, rec.y, rec.width, rec.height, c, c2);
+
+	//DrawRectanglePro(rec, getAnchorPoint(), getRotation(), c);
 
 	c = CCColors::rainbow;
-	c.a *= getOpacity();
+	c.a *= op;
 	DrawRectangleLinesEx(rec, 2.f, c);
 }

@@ -2,7 +2,11 @@
 
 #include "AKSpriteAnimation.h"
 #include "AKOpacityChange.h"
-
+#include "AKTimer.h"
+#include "AKInterval.h"
+#include "CCSprite.h"
+#include "CCBox.h"
+#include "CCLabel.h"
 void CCNode::addChild(CCNode* child) {
 	child->setParent(this);
 	children.push_back(child);
@@ -65,7 +69,53 @@ void CCNode::update(float delta) {
 
 			//printf("destroyed object %X\n", actions[i]);
 
-			delete actions[i];
+			switch (actions[i]->getType()) {
+			default:
+			case ATSCHEDULABLE: {
+				delete actions[i];
+				break;
+			}
+			case ATTIMER: {
+				auto ttt = static_cast<AKTimer*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATINTERVAL: {
+				auto ttt = static_cast<AKInterval*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATOPACITYCHANGE: {
+				auto ttt = static_cast<AKOpacityChange*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATSPRITEANIMATION: {
+				auto ttt = static_cast<AKSpriteAnimation*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATNODE: {
+				auto ttt = static_cast<CCNode*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATSPRITE: {
+				auto ttt = static_cast<CCSprite*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATLABEL: {
+				auto ttt = static_cast<CCLabel*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			case ATBOX: {
+				auto ttt = static_cast<CCBox*>(actions[i]);
+				delete ttt;
+				break;
+			}
+			}
 
 			actions.erase(actions.begin() + i);
 		}
