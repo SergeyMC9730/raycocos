@@ -7,17 +7,25 @@ CCLabel::CCLabel(const char* lb) {
 	opacity = 0.f;
 	action_opacity = 1.f;
 	label = lb;
+	_font = GetFontDefault();
+}
+CCLabel::CCLabel(std::string lb) {
+	type = ATSPRITE;
+	opacity = 0.f;
+	action_opacity = 1.f;
+	label = lb.c_str();
+	_font = GetFontDefault();
 }
 
 void CCLabel::draw() {
-	int defaultFontSize = 10;
-	int fontSize = getScale() * 30.f;
-	int spacing = fontSize / defaultFontSize;
+	float defaultFontSize = (float)_font.baseSize;
+	float fontSize = getScale() * defaultFontSize * 3.f;
+	float spacing = fontSize / defaultFontSize * 1.f;
 
 	Color c = col;
 	c.a *= getOpacity();
 
-	DrawTextPro(GetFontDefault(), label, getPosition(), {0.f, 0.f}, getRotation(), 30 * getScale(), spacing, c);
+	DrawTextPro(_font, label, getPosition(), {0.f, 0.f}, getRotation(), fontSize, spacing, c);
 }
 
 const char* CCLabel::getText() {
@@ -25,4 +33,8 @@ const char* CCLabel::getText() {
 }
 void CCLabel::setText(const char* t) {
 	label = t;
+}
+
+void CCLabel::setFont(Font fnt) {
+	_font = fnt;
 }

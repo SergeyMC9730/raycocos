@@ -6,6 +6,6 @@
 namespace CCSpriteCache {
 	extern std::vector<CCSpriteCacheItem> cache;
 
-	bool exists(const char* filename);
-	Texture2D getByFilename(const char* filename);
+	bool exists(std::string filename);
+	Texture2D getByFilename(std::string filename);
 }

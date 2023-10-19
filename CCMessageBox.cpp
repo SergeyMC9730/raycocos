@@ -42,8 +42,8 @@ void CCMessageBox::update(float delta) {
 	label->setScale(0.9f);
 	label->setPosition({ 10.f + offset->x, -sz1.y + 8.f });
 
-	auto mov3 = new AKSpriteAnimation(GetMonitorRefreshRate(0) / 1.5f, E_OUTQUART);
-	auto mov4 = new AKSpriteAnimation(GetMonitorRefreshRate(0) / 1.5f, E_OUTQUART);
+	auto mov3 = new AKSpriteAnimation(CCController::secondsToFrames(0.5f, delta), E_OUTQUART);
+	auto mov4 = new AKSpriteAnimation(CCController::secondsToFrames(0.5f, delta), E_OUTQUART);
 
 	mov3->setFinalPosition({ 0.f, sz1.y });
 	mov3->object_container.push_back(box);
@@ -81,11 +81,11 @@ void CCMessageBox::update(float delta) {
         nd1->setOpacity(0.f);
         nd2->setOpacity(0.f);
 
-        auto op1 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
+        auto op1 = new AKOpacityChange(1.f, 0.f, CCController::secondsToFrames(0.5f, delta), [&](AKOpacityChange* self) {
             self->destroy();
             self->getParent()->destroy();
         });
-        auto op2 = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0), [&](AKOpacityChange* self) {
+        auto op2 = new AKOpacityChange(1.f, 0.f, CCController::secondsToFrames(0.5f, delta), [&](AKOpacityChange* self) {
             self->destroy();
             self->getParent()->destroy();
             auto messages_sent = &CCMessageBoxData::messages_sent;
@@ -105,17 +105,17 @@ void CCMessageBox::update(float delta) {
         op2->object_container.push_back(pmov3);
         op2->object_container.push_back(pmov4);
 
-        auto mov1 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
+        auto mov1 = new AKSpriteAnimation(CCController::secondsToFrames(0.5f, delta), E_INQUART);
         mov1->setFinalPosition({ 0.f, -vec->y });
 
-        auto mov2 = new AKSpriteAnimation(GetMonitorRefreshRate(0), E_INQUART);
+        auto mov2 = new AKSpriteAnimation(CCController::secondsToFrames(0.5f, delta), E_INQUART);
         mov2->setFinalPosition({ 0.f, -vec->y });
 
         nd1->runAction(op1);
         nd2->runAction(op2);
         nd1->runAction(mov1);
         nd2->runAction(mov2);
-    }, GetMonitorRefreshRate(0));
+    }, CCController::secondsToFrames(1.f, delta));
 
     timer->object_container.push_back(label);
     timer->object_container.push_back(box);

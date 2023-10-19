@@ -12,6 +12,8 @@
 
 #include "CCMessageBox.h"
 
+#include <string>
+
 using namespace std;
 
 void create_hieffect() {
@@ -19,7 +21,7 @@ void create_hieffect() {
 
     auto sometext = new CCLabel(".");
 
-    auto key1 = new AKSpriteAnimation(GetMonitorRefreshRate(0), (Easing)GetRandomValue(0, 30));
+    auto key1 = new AKSpriteAnimation(CCController::secondsToFrames(1.f, GetFrameTime()) + 1, (Easing)GetRandomValue(0, 30));
 
     key1->setFinalScale(2.f);
     key1->setFinalRotation(GetRandomValue(-90, 90));
@@ -29,7 +31,7 @@ void create_hieffect() {
     });
     sometext->setColor(SKYBLUE);
 
-    auto op = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0) + 1, [&](AKOpacityChange* self) {
+    auto op = new AKOpacityChange(1.f, 0.f, CCController::secondsToFrames(1.f, GetFrameTime()) + 1, [&](AKOpacityChange* self) {
         self->destroy();
         self->getParent()->destroy();
     });
@@ -41,28 +43,36 @@ void create_hieffect() {
 int main()
 {
 
-    InitWindow(1024, 768, "raylib [core] example - basic window");
-    SetTargetFPS(GetMonitorRefreshRate(0));
+    InitWindow(1280, 720, "raylib [core] example - basic window");
+    SetTargetFPS(144);
 
     bool infullscreen = false;
 
     CCController::init();
 
-    char* labeldata = (char *)MemAlloc(128);
-    char* labeldata2 = (char*)MemAlloc(128);
+    // char* labeldata = (char *)MemAlloc(128);
+    // char* labeldata2 = (char*)MemAlloc(128);
+
+    std::string labeldata;
+    std::string labeldata2;
 
     bool stop_hieffect = false;
 
     auto lb = new CCLabel(labeldata);
     lb->setColor(GREEN);
     lb->setPosition({ 10.f, 70.f });
-    lb->setScale(0.66666f);
+    lb->setScale(0.33333f);
     lb->setOpacity(1.f);
     auto lbfps = new CCLabel(labeldata2);
     lbfps->setColor(GREEN);
     lbfps->setPosition({ 10.f, 50.f });
-    lbfps->setScale(0.66666f);
+    lbfps->setScale(0.33333f);
     lbfps->setOpacity(1.f);
+
+    Font fnt = LoadFontEx("Roboto-Bold.ttf", 20, 0, 0);
+
+    lb->setFont(fnt);
+    lbfps->setFont(fnt);
 
     std::vector<CCNode*> hide_list;
 
@@ -70,7 +80,7 @@ int main()
         if (!stop_hieffect) {
             int i = 0;
             int m = 144.f / (float)GetFPS();
-            if (m == 0) m == 1;
+            if (m == 0) m = 1;
             while (i < m) {
                 create_hieffect();
                 i++;
@@ -81,8 +91,14 @@ int main()
     auto iv2 = new AKInterval([&](AKInterval*) {
         auto timeline = CCController::timeline;
 
-        snprintf(labeldata, 128, "OBJECTS: %d", timeline->getSize());
-        snprintf(labeldata2, 128, "FPS: %d", GetFPS());
+        // snprintf(labeldata, 128, "OBJECTS: %d", timeline->getSize());
+        // snprintf(labeldata2, 128, "FPS: %d", GetFPS());
+
+        labeldata = "OBJECTS: " + std::to_string(timeline->getSize());
+        labeldata2 = "FPS: " + std::to_string(1.f / GetFrameTime());
+
+        lb->setText(labeldata.c_str());
+        lbfps->setText(labeldata2.c_str());
 
         if (IsKeyPressed(KEY_S)) {
             stop_hieffect = !stop_hieffect;
@@ -96,6 +112,7 @@ int main()
         }
         if (IsKeyPressed(KEY_F)) {
             infullscreen = !infullscreen;
+            SetWindowSize(GetMonitorWidth(0), GetMonitorHeight(0));
 
             if (infullscreen) {
                 timeline->addToTimeline(new CCMessageBox("Fullscreen is enabled."));
@@ -104,7 +121,7 @@ int main()
                 int i = 0;
                 while (i < hide_list.size()) {
                     hide_list[i]->setOpacity(0.f);
-                    auto op = new AKOpacityChange(1.f, 0.f, GetMonitorRefreshRate(0) / 3     + 1);
+                    auto op = new AKOpacityChange(1.f, 0.f, CCController::secondsToFrames(0.3f, GetFrameTime()));
                     hide_list[i]->runAction(op);
                     i++;
                 }
@@ -116,7 +133,7 @@ int main()
                 int i = 0;
                 while (i < hide_list.size()) {
                     hide_list[i]->setOpacity(0.f);
-                    auto op = new AKOpacityChange(0.f, 1.f, GetMonitorRefreshRate(0) / 3 + 1);
+                    auto op = new AKOpacityChange(0.f, 1.f, CCController::secondsToFrames(0.3f, GetFrameTime()));
                     hide_list[i]->runAction(op);
                     i++;
                 }
@@ -129,7 +146,7 @@ int main()
                     auto timeline = CCController::timeline;
                     timeline->addToTimeline(new CCMessageBox("Test T!"));
                     self->destroy();
-                }, i);
+                }, CCController::secondsToFrames(0.01f * (float)i, GetFrameTime()));
                 timeline->addToTimeline(tmm);
                 i++;
             }

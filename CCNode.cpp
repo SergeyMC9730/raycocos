@@ -11,6 +11,14 @@ void CCNode::addChild(CCNode* child) {
 	child->setParent(this);
 	children.push_back(child);
 }
+CCNode::~CCNode() {
+	for (auto child : children) {
+		delete child;
+	}
+	for (auto sched : actions) {
+		delete sched;
+	}
+}
 void CCNode::update(float delta) {
 	float x = 0;
 	float y = 0;
@@ -22,13 +30,12 @@ void CCNode::update(float delta) {
 	action_rotation = 0.f;
 	action_scale = 0.f;
 
-	int i = 0;
-	while (i < children.size()) {
-		children[i]->update(delta);
-		i++;
+	for (auto child : children) {
+		child->update(delta);
 	}
 
-	i = 0;
+	int i = 0;
+
 	while (i < actions.size()) {
 		actions[i]->setParent(this);
 
@@ -52,6 +59,7 @@ void CCNode::update(float delta) {
 			auto opanim = static_cast<AKOpacityChange*>(actions[i]);
 			ind_op = opanim->getOpacity();
 		}
+		default: {}
 		}
 
 		if (actions[i]->isDestroyed()) {
@@ -67,55 +75,57 @@ void CCNode::update(float delta) {
 			sc -= ind_sc;
 			op -= ind_op;
 
-			//printf("destroyed object %X\n", actions[i]);
+			// printf("destroyed object %X\n", actions[i]);
 
-			switch (actions[i]->getType()) {
-			default:
-			case ATSCHEDULABLE: {
-				delete actions[i];
-				break;
-			}
-			case ATTIMER: {
-				auto ttt = static_cast<AKTimer*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATINTERVAL: {
-				auto ttt = static_cast<AKInterval*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATOPACITYCHANGE: {
-				auto ttt = static_cast<AKOpacityChange*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATSPRITEANIMATION: {
-				auto ttt = static_cast<AKSpriteAnimation*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATNODE: {
-				auto ttt = static_cast<CCNode*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATSPRITE: {
-				auto ttt = static_cast<CCSprite*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATLABEL: {
-				auto ttt = static_cast<CCLabel*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			case ATBOX: {
-				auto ttt = static_cast<CCBox*>(actions[i]);
-				delete ttt;
-				break;
-			}
-			}
+			delete actions[i];
+
+			// switch (actions[i]->getType()) {
+			// default:
+			// case ATSCHEDULABLE: {
+			// 	delete actions[i];
+			// 	break;
+			// }
+			// case ATTIMER: {
+			// 	auto ttt = static_cast<AKTimer*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATINTERVAL: {
+			// 	auto ttt = static_cast<AKInterval*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATOPACITYCHANGE: {
+			// 	auto ttt = static_cast<AKOpacityChange*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATSPRITEANIMATION: {
+			// 	auto ttt = static_cast<AKSpriteAnimation*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATNODE: {
+			// 	auto ttt = static_cast<CCNode*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATSPRITE: {
+			// 	auto ttt = static_cast<CCSprite*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATLABEL: {
+			// 	auto ttt = static_cast<CCLabel*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// case ATBOX: {
+			// 	auto ttt = static_cast<CCBox*>(actions[i]);
+			// 	delete ttt;
+			// 	break;
+			// }
+			// }
 
 			actions.erase(actions.begin() + i);
 		}
@@ -208,14 +218,20 @@ void CCNode::setAnchorPoint(Vector2 anchor) {
 }
 float CCNode::getScale() {
 	//printf("getScale()\n");
-	float additional_scale = 0.f;
+	float additional_scale = 1.f;
 
 	CCNode* parent_nd = (CCNode*)getParent();
 	if (parent_nd != nullptr) {
-		additional_scale += parent_nd->getScale();
+		additional_scale *= parent_nd->getScale();
 	}
 
-	return scale + action_scale + additional_scale;
+	float action_scale2 = 1.f;
+
+	if (action_scale > 0.f) {
+		action_scale2 = action_scale;
+	}
+
+	return scale * (action_scale2 * additional_scale);
 }
 float CCNode::getScaleX() {
 	return scaleXY.x + action_scale;
@@ -235,16 +251,57 @@ float CCNode::getRotation() {
 	return rotation + action_rotation + additional_rotation;
 }
 float CCNode::getOpacity() {
+	float parent = 1.f;
+
+	CCNode *parent_nd = (CCNode *)getParent();
+	if (parent_nd != nullptr) {
+		parent *= parent_nd->getOpacity();
+	}
+
+	// printf("opacity: %f\n", parent);
+
 	float raw = action_opacity + opacity;
 	if (raw < 0.f) raw = 0.f;
-	if (raw < 1.f) return raw;
-	if (raw > 1.f) return 1.f / raw;
-	return 1.f / raw;
+	if (raw < 1.f) return raw * parent;
+	if (raw > 1.f) return 1.f / (raw * parent);
+	return 1.f / (raw * parent);
 }
 Vector2 CCNode::getAnchorPoint() {
-	return anchorPoint;
+	float parent_x = 0.f;
+	float parent_y = 0.f;
+
+	CCNode *parent_nd = (CCNode *)getParent();
+	if (parent_nd != nullptr) {
+		auto cs = parent_nd->getAnchorPoint();
+
+		parent_x += cs.x;
+		parent_y += cs.y;
+	}
+
+	auto res_cs = anchorPoint;
+
+	res_cs.x += parent_x;
+	res_cs.y += parent_y;
+
+	return res_cs;
 }
 Vector2 CCNode::getContentSize() {
+	float parent_x = 0.f;
+	float parent_y = 0.f;
+
+	CCNode *parent_nd = (CCNode *)getParent();
+	if (parent_nd != nullptr) {
+		auto cs = parent_nd->getContentSize();
+
+		parent_x += cs.x;
+		parent_y += cs.y;
+	}
+
+	auto res_cs = contentSize;
+
+	res_cs.x += parent_x;
+	res_cs.y += parent_y;
+
 	return contentSize;
 }
 

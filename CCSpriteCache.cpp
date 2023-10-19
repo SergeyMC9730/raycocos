@@ -4,7 +4,7 @@
 
 std::vector<CCSpriteCacheItem> CCSpriteCache::cache;
 
-bool CCSpriteCache::exists(const char* item) {
+bool CCSpriteCache::exists(std::string item) {
 	int i = 0;
 	while (i < cache.size()) {
 		std::string item1 = item;
@@ -18,7 +18,7 @@ bool CCSpriteCache::exists(const char* item) {
 	return false;
 }
 
-Texture2D CCSpriteCache::getByFilename(const char* item) {
+Texture2D CCSpriteCache::getByFilename(std::string item) {
 	int i = 0;
 	while (i < cache.size()) {
 		std::string item1 = item;

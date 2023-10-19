@@ -4,6 +4,8 @@
 
 #include <functional>
 
+#include <vector>
+
 class AKSchedulable {
 protected:
 	bool paused;

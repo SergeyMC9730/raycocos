@@ -25,6 +25,7 @@ protected:
 	Vector2 contentSize;
 public:
 	CCNode();
+	~CCNode();
 
 	virtual void addChild(CCNode* child);
 	virtual void runAction(AKSchedulable* action);

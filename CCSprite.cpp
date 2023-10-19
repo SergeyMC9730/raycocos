@@ -3,12 +3,33 @@
 #include "CCSpriteCache.h"
 
 CCSprite::CCSprite(Texture2D tex) {
-	this->texture = tex;
+	setTexture(tex);
+
 	type = ATSPRITE;
-	this->contentSize = { (float)this->texture.width, (float)this->texture.height };
 }
 
-CCSprite::CCSprite(const char* filename) {
+CCSprite::CCSprite(std::string filename) {
+	setTexture(filename);
+
+	type = ATSPRITE;
+}
+
+CCSprite::CCSprite(Image img) {
+	Texture2D texture = LoadTextureFromImage(img);
+
+	setTexture(texture);
+
+	type = ATSPRITE;
+}
+
+Texture2D CCSprite::getTexture() {
+	return texture;
+}
+void CCSprite::setTexture(Texture2D _texture) {
+	this->texture = _texture;
+	this->contentSize = { (float)this->texture.width, (float)this->texture.height };
+}
+void CCSprite::setTexture(std::string filename) {
 	if (CCSpriteCache::exists(filename)) {
 		this->texture = CCSpriteCache::getByFilename(filename);
 	}
@@ -19,7 +40,6 @@ CCSprite::CCSprite(const char* filename) {
 		item.texture = this->texture;
 		CCSpriteCache::cache.push_back(item);
 	}
-	type = ATSPRITE;
 	this->contentSize = { (float)this->texture.width, (float)this->texture.height };
 }
 
